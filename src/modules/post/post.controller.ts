@@ -4,6 +4,8 @@ import { Types } from "mongoose";
 import { success } from "zod";
 import { isValid } from "../../middleware";
 import { createPostSchema } from "./post.dto";
+import { addReaction } from "../../common";
+import { postRepository } from "../../DB/models/post/post.repository";
 
 const router = Router();
 
@@ -13,7 +15,7 @@ router.post("/", isValid(createPostSchema), async (req: Request, res: Response, 
 });
 
 router.post("/reaction", async (req: Request, res: Response, next: NextFunction) => {
-  await postService.addReaction(req.body, new Types.ObjectId("69ea1d0391a581efbc2436b0"));
+  await addReaction(req.body, new Types.ObjectId("69ea1d0391a581efbc2436b0"), postRepository);
   return res.sendStatus(204);
 });
 

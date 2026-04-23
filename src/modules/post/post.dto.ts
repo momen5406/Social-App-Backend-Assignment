@@ -18,8 +18,3 @@ export const createPostSchema = z
       throw new BadRequestException("Content or Attachments must be provided.");
     return true;
   });
-
-export interface AddReactionDTO {
-  postId: Types.ObjectId;
-  reaction: SYS_REACTIONS;
-}

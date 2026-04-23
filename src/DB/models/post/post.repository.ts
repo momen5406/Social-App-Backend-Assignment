@@ -7,3 +7,5 @@ export class PostRepository extends AbstractRepository<IPost> {
     super(Post);
   }
 }
+
+export const postRepository = new PostRepository();
