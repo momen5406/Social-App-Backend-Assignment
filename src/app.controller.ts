@@ -1,0 +1,29 @@
+import express, { NextFunction, Request, Response } from "express";
+import { authRouter, postRouter } from "./modules";
+import { BadRequestException } from "./common";
+import { connectDB } from "./DB/connection";
+import { redisConnect } from "./DB/redis.connect";
+
+export function bootstrap() {
+  const app = express();
+  const port = 3000;
+
+  connectDB();
+  redisConnect();
+
+  app.use(express.json());
+  app.use("/auth", authRouter);
+  app.use("/post", postRouter);
+
+  app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+    return res.status((error.cause as number) || 500).json({
+      message: error.message,
+      success: false,
+      details: error instanceof BadRequestException ? error.details : undefined,
+    });
+  });
+
+  app.listen(port, () => {
+    console.log("Application is running on port", port);
+  });
+}
