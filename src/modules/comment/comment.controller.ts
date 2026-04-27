@@ -1,12 +1,10 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { Types } from "mongoose";
-import { success } from "zod";
-import { isValid } from "../../middleware";
 import commentService from "./comment.service";
 import { addReaction } from "../../common";
 import { commentRepository } from "../../DB/models/comment/comment.repository";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.post("/reaction", async (req: Request, res: Response, next: NextFunction) => {
   await addReaction(req.body, new Types.ObjectId("69ea1d0391a581efbc2436b0"), commentRepository);
@@ -21,6 +19,14 @@ router.post("/:postId{/:parentId}", async (req: Request, res: Response, next: Ne
 router.get("/:postId{/:parentId}", async (req: Request, res: Response, next: NextFunction) => {
   const comments = await commentService.getAll(req.params);
   res.status(200).json({ success: true, data: comments });
+});
+
+router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  await commentService.delete(
+    new Types.ObjectId(req.params.id as string),
+    new Types.ObjectId("69ea1d0391a581efbc2436b0")
+  );
+  res.sendStatus(204);
 });
 
 export default router;

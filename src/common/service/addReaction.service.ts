@@ -25,7 +25,7 @@ export const addReaction = async (
   repo: PostRepository | CommentRepository
 ) => {
   const docExist = await repo.getOne({ _id: addReactionDTO.id });
-  if (!docExist) throw new NotFoundException("Post not found");
+  if (!docExist) throw new NotFoundException(`${repo.model.modelName} not found`);
 
   const collectionName = docExist.collection.name;
   const reactionRepository = new ReactionRepository();

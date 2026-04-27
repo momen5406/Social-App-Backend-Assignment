@@ -5,6 +5,10 @@ import { User } from "./models/user/user.model";
 export abstract class AbstractRepository<T> {
   constructor(private _model: Model<T>) {}
 
+  get model() {
+    return this._model;
+  }
+
   /**
    * @param item is generic data which passed to DB
    */
