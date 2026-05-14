@@ -25,3 +25,11 @@ export enum ON_MODEL {
   Post = "Post",
   Comment = "Comment",
 }
+
+export enum SYS_USER_RELATION {
+  son = 0,
+  sister = 1,
+  brother = 2,
+  father = 3,
+  mother = 4,
+}

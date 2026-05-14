@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
-import { authRouter, commentRouter, postRouter } from "./modules";
+import { authRouter, commentRouter, postRouter, requestRouter } from "./modules";
 import { BadRequestException } from "./common";
 import { connectDB } from "./DB/connection";
 import { redisConnect } from "./DB/redis.connect";
@@ -15,6 +15,7 @@ export function bootstrap() {
   app.use("/auth", authRouter);
   app.use("/post", postRouter);
   app.use("/comment", commentRouter);
+  app.use("/request", requestRouter);
 
   app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     return res.status((error.cause as number) || 500).json({
