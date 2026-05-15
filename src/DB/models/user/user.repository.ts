@@ -7,3 +7,5 @@ export class UserRepository extends AbstractRepository<IUser> {
     super(User);
   }
 }
+
+export const userRepository = new UserRepository();

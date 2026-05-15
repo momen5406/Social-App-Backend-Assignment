@@ -1,21 +1,15 @@
-import {
-  ConflictException,
-  encrypt,
-  hash,
-  generateOTP,
-  sendMail,
-  NotFoundException,
-  BadRequestException,
-} from "../../common";
-import { UserRepository } from "../../DB/models/user/user.repository";
+import { ConflictException, encrypt, hash, generateOTP, NotFoundException, BadRequestException } from "../../common";
+import { IMailProvider } from "../../common/email/mail.interface";
+import { nodemailerProvider } from "../../common/email/nodemailer/init";
+import { userRepository, UserRepository } from "../../DB/models/user/user.repository";
 import { deleteFromCache, getFromCache, setIntoCache } from "../../DB/redis.service";
 import { ResetPasswordDTO, LoginDTO, SignupDTO, VerifyAccountDTO } from "./auth.dto";
 
 class AuthService {
-  private userRepository: UserRepository;
-  constructor() {
-    this.userRepository = new UserRepository();
-  }
+  constructor(
+    private userRepository: UserRepository,
+    private mailProvider: IMailProvider
+  ) {}
 
   async signup(signupDTO: SignupDTO) {
     const { email } = signupDTO;
@@ -29,11 +23,7 @@ class AuthService {
 
     const otp = generateOTP();
 
-    await sendMail({
-      to: signupDTO.email,
-      subject: "Confirm Email",
-      html: `<p>You OTP to verify your account is ${otp}</p>`,
-    });
+    await this.mailProvider.send(signupDTO.email, "Confirm Email", `<p>You OTP to verify your account is ${otp}</p>`);
 
     await setIntoCache(`${signupDTO.email}:otp`, otp, 3 * 60);
 
@@ -65,7 +55,8 @@ class AuthService {
     if (isOtpExist) throw new BadRequestException("Already have a valid otp!");
 
     const otp = generateOTP();
-    await sendMail({ to: email, subject: "Re-send OTP", html: `<p>Your new otp is ${otp}</p>` });
+    await this.mailProvider.send(email, "Re-send OTP", `<p>Your new otp is ${otp}</p>`);
+
     await setIntoCache(`${email}:otp`, otp, 3 * 60);
   }
 
@@ -84,4 +75,4 @@ class AuthService {
   login(loginDTO: LoginDTO) {}
 }
 
-export default new AuthService();
+export default new AuthService(userRepository, nodemailerProvider);
