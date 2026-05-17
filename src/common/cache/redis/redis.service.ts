@@ -31,4 +31,21 @@ export class RedisCacheProvider implements ICacheProvider {
   async delete(key: string): Promise<void> {
     await this.client.del(key);
   }
+
+  /**
+   * @param key >> ex: "userId.FCM"
+   * @param token fcm from token firebase
+   */
+  async addToSet(key: string, value: string): Promise<void> {
+    await this.client.sAdd(key, value);
+  }
+
+  async rmSet(key: string, value: string): Promise<boolean> {
+    const number = await this.client.sRem(key, value);
+    return number ? true : false;
+  }
+
+  async getAllFromSet(Key: string): Promise<string[]> {
+    return await this.client.sMembers(Key);
+  }
 }

@@ -1,4 +1,16 @@
-import { ConflictException, encrypt, hash, generateOTP, NotFoundException, BadRequestException } from "../../common";
+import {
+  ConflictException,
+  encrypt,
+  hash,
+  generateOTP,
+  NotFoundException,
+  BadRequestException,
+  compare,
+  generateAccessToken,
+  generateRefreshToken,
+} from "../../common";
+import { ICacheProvider } from "../../common/cache/cache.interface";
+import { redisCacheProvider } from "../../common/cache/redis/init";
 import { IMailProvider } from "../../common/email/mail.interface";
 import { nodemailerProvider } from "../../common/email/nodemailer/init";
 import { userRepository, UserRepository } from "../../DB/models/user/user.repository";
@@ -8,7 +20,8 @@ import { ResetPasswordDTO, LoginDTO, SignupDTO, VerifyAccountDTO } from "./auth.
 class AuthService {
   constructor(
     private userRepository: UserRepository,
-    private mailProvider: IMailProvider
+    private mailProvider: IMailProvider,
+    private cacheProvider: ICacheProvider
   ) {}
 
   async signup(signupDTO: SignupDTO) {
@@ -72,7 +85,26 @@ class AuthService {
     await this.userRepository.updateOne({ email: resetPasswordDTO.email }, { password: resetPasswordDTO.newPassword });
   }
 
-  login(loginDTO: LoginDTO) {}
+  async login(loginDTO: LoginDTO) {
+    const userExist = await this.userRepository.getOne({ email: loginDTO.email });
+    if (!userExist) throw new NotFoundException("User not found");
+
+    const match = compare(loginDTO.password, userExist.password);
+    if (!match) throw new NotFoundException("Invalid Password");
+
+    const accessToken = generateAccessToken({ email: loginDTO.email, sub: userExist._id.toString() });
+    const refreshToken = generateRefreshToken({ email: loginDTO.email, sub: userExist._id.toString() });
+
+    if (loginDTO.FCM) {
+      this.cacheProvider.addToSet(`${userExist._id.toString()}:FCM`, loginDTO.FCM);
+    }
+
+    return { accessToken, refreshToken };
+  }
+
+  async logout(userId: string, FCM: string) {
+    await this.cacheProvider.rmSet(`${userId}:FCM`, FCM);
+  }
 }
 
-export default new AuthService(userRepository, nodemailerProvider);
+export default new AuthService(userRepository, nodemailerProvider, redisCacheProvider);

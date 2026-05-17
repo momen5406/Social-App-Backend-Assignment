@@ -11,6 +11,7 @@ export interface VerifyAccountDTO {
 export interface LoginDTO {
   email: string;
   password: string;
+  FCM?: string;
 }
 
 export interface ResetPasswordDTO {

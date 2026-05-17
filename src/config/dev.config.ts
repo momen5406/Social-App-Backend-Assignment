@@ -6,3 +6,5 @@ export const S3_REGION = process.env.S3_REGION as string;
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME as string;
 export const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID as string;
 export const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY as string;
+export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
+export const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;

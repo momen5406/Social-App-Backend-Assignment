@@ -5,6 +5,7 @@ import { ON_MODEL } from "../enums";
 import { ReactionRepository } from "../../DB/models/reaction/reaction.repository";
 import { PostRepository } from "../../DB/models/post/post.repository";
 import { CommentRepository } from "../../DB/models/comment/comment.repository";
+import { FirebasePushNotificationProvider } from "../notification/firebase/firebase.service";
 
 function toModel(collectionName: string) {
   switch (collectionName) {
@@ -44,6 +45,7 @@ export const addReaction = async (
       reaction: addReactionDTO.reaction,
     });
     await repo.updateOne({ _id: addReactionDTO.id }, { $inc: { reactionsCount: 1 } });
+
     return;
   }
 
