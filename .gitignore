@@ -1,3 +1,4 @@
 *.env
 /dist
 /node_modules
+/src/config/social-app-e63c3-firebase-adminsdk-fbsvc-63db062e1d.json
