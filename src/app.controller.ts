@@ -6,10 +6,11 @@ import { redisConnect } from "./DB/redis.connect";
 import { s3CloudProvider } from "./common/cloud/s3/init";
 import { promisify } from "node:util";
 import { pipeline } from "node:stream";
-import { createHandler } from "graphql-http/lib/use/express";
-import { GraphQLObjectType, GraphQLSchema } from "graphql/type";
-import { postQuery } from "./modules/post/graphql/post.gql";
-import { UserMutation, userQuery } from "./modules/user/graphql/user.gql";
+import { createHandler } from "graphql-http";
+import { GraphQLObjectType, GraphQLSchema } from "graphql";
+import { UserGqlQuery } from "./modules/user/graphql/user.query.gql";
+import { PostGqlQuery } from "./modules/post/graphql/post.query.gql";
+import { CommentGqlQuery } from "./modules/comment/graphql/comment.query.gql";
 
 const pipelinePromise = promisify(pipeline);
 
@@ -26,24 +27,19 @@ export function bootstrap() {
 
   connectDB();
   redisConnect();
-
-  let query = new GraphQLObjectType({
-    name: "RootQuery",
-    fields: {
-      ...userQuery,
-      ...postQuery,
-    },
-  });
-
-  let mutation = new GraphQLObjectType({
-    name: "RootMutation",
-    fields: { ...UserMutation },
-  });
-
-  let schema = new GraphQLSchema({ query, mutation });
-
-  app.all("/graphql", createHandler({ schema }));
   app.use(express.json());
+
+  const query = new GraphQLObjectType({
+    name: "RootQuery",
+    fields: { ...UserGqlQuery, ...PostGqlQuery, ...CommentGqlQuery },
+  });
+  const mutation = new GraphQLObjectType({
+    name: "RootMutation",
+    fields: {},
+  });
+  const schema = new GraphQLSchema({ query, mutation });
+  app.use("/graphql", createHandler({ schema }));
+
   app.use("/auth", authRouter);
   app.use("/post", postRouter);
   app.use("/comment", commentRouter);

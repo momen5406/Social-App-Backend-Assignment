@@ -13,6 +13,10 @@ export class PostService {
   async create(createPostDTO: CreatePostDTO, userId: Types.ObjectId) {
     return await this.postRepository.create({ ...createPostDTO, userId });
   }
+
+  async getPost(postId: Types.ObjectId) {
+    return await this.postRepository.getOne({ _id: postId }, {}, { populate: { path: "userId" } });
+  }
 }
 
 export default new PostService(new PostRepository(), new ReactionRepository());

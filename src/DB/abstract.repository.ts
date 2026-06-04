@@ -26,7 +26,7 @@ export abstract class AbstractRepository<T> {
   }
 
   public async updateOne(filter: QueryFilter<T>, update: UpdateQuery<T>, options: QueryOptions = {}) {
-    options.returnDocument = "after";
+    // options.returnDocument = "after";
     return this._model.findOneAndUpdate(filter, update, options);
   }
 

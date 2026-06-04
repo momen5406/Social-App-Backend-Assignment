@@ -1,12 +1,15 @@
 import { GraphQLID, GraphQLObjectType, GraphQLString } from "graphql";
 
-export const UserType = new GraphQLObjectType({
-  name: "UserQuery",
+export const UserGqlType = new GraphQLObjectType({
+  name: "UserType",
   fields: {
-    id: { type: GraphQLID },
-    name: { type: GraphQLString },
+    _id: { type: GraphQLID },
+    username: { type: GraphQLString },
     email: { type: GraphQLString },
     password: { type: GraphQLString },
     phone: { type: GraphQLString },
+    role: { type: GraphQLString },
+    provider: { type: GraphQLString },
+    gender: { type: GraphQLString },
   },
 });

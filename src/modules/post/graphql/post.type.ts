@@ -1,11 +1,20 @@
-import { GraphQLID, GraphQLObjectType, GraphQLString } from "graphql";
+import { GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString } from "graphql";
+import { UserGqlType } from "../../user/graphql/user.type";
 
-export const PostType = new GraphQLObjectType({
-  name: "UserQuery",
+export const PostGqlType = new GraphQLObjectType({
+  name: "PostType",
   fields: {
     id: { type: GraphQLID },
-    title: { type: GraphQLString },
-    description: { type: GraphQLString },
-    userId: { type: GraphQLID },
+    content: { type: GraphQLString },
+    attachment: { type: new GraphQLList(GraphQLString) },
+    reactionsCount: { type: GraphQLInt },
+    commentsCount: { type: GraphQLInt },
+    sharesCount: { type: GraphQLInt },
+    user: {
+      type: UserGqlType,
+      resolve: (parent: any) => {
+        return parent.userId;
+      },
+    },
   },
 });
