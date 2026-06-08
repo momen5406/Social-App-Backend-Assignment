@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import postService from "../post.service";
-import { PostGqlType } from "./post.type";
+import { PostGqlType } from "./post.type.gql";
 
 export const PostGqlQuery = {
   post: {

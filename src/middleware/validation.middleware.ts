@@ -15,3 +15,14 @@ export const isValid = (schema: ZodObject) => {
     next();
   };
 };
+
+export const isValidGQL = async (schema: ZodObject, args: any) => {
+  const result = await schema.safeParse(args);
+  if (result.success == false) {
+    const errorMessages = result.error.issues.map((issue) => ({
+      path: issue.path[0] as string,
+      message: issue.message,
+    }));
+    throw new BadRequestException("Validation Error", errorMessages);
+  }
+};

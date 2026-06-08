@@ -7,10 +7,11 @@ import { s3CloudProvider } from "./common/cloud/s3/init";
 import { promisify } from "node:util";
 import { pipeline } from "node:stream";
 import { createHandler } from "graphql-http";
-import { GraphQLObjectType, GraphQLSchema } from "graphql";
+import { GraphQLError, GraphQLObjectType, GraphQLSchema } from "graphql";
 import { UserGqlQuery } from "./modules/user/graphql/user.query.gql";
 import { PostGqlQuery } from "./modules/post/graphql/post.query.gql";
 import { CommentGqlQuery } from "./modules/comment/graphql/comment.query.gql";
+import { PostGqlMutation } from "./modules/post/graphql/post.mutation.gql";
 
 const pipelinePromise = promisify(pipeline);
 
@@ -35,10 +36,26 @@ export function bootstrap() {
   });
   const mutation = new GraphQLObjectType({
     name: "RootMutation",
-    fields: {},
+    fields: { ...PostGqlMutation },
   });
   const schema = new GraphQLSchema({ query, mutation });
-  app.use("/graphql", createHandler({ schema }));
+  app.all(
+    "/graphql",
+    createHandler({
+      context: (req) => {
+        const headers = req.headers;
+        return { x: 1, headers };
+      },
+      schema,
+      formatError: (error) => {
+        return {
+          message: error.message,
+          success: false,
+          statusCode: error.cause,
+        } as unknown as GraphQLError;
+      },
+    })
+  );
 
   app.use("/auth", authRouter);
   app.use("/post", postRouter);

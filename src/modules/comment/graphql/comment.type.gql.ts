@@ -1,6 +1,6 @@
 import { GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString } from "graphql";
 import { UserGqlType } from "../../user/graphql/user.type";
-import { PostGqlType } from "../../post/graphql/post.type";
+import { PostGqlType } from "../../post/graphql/post.type.gql";
 
 export const CommentGqlType = new GraphQLObjectType({
   name: "CommentType",
