@@ -3,3 +3,4 @@ export { default as postRouter } from "./post/post.controller";
 export { default as commentRouter } from "./comment/comment.controller";
 export { default as requestRouter } from "./request/request.controller";
 export { default as userRouter } from "./user/user.controller";
+export { default as chatRouter } from "./chat/chat.controller";

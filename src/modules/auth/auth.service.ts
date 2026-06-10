@@ -89,7 +89,7 @@ class AuthService {
     const userExist = await this.userRepository.getOne({ email: loginDTO.email });
     if (!userExist) throw new NotFoundException("User not found");
 
-    const match = compare(loginDTO.password, userExist.password);
+    const match = await compare(loginDTO.password, userExist.password);
     if (!match) throw new NotFoundException("Invalid Password");
 
     const accessToken = generateAccessToken({ email: loginDTO.email, sub: userExist._id.toString() });

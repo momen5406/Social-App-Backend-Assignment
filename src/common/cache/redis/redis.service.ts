@@ -15,6 +15,8 @@ export class RedisCacheProvider implements ICacheProvider {
         console.log("Redis connected Successfully");
       })
       .catch((err) => {
+        console.log(err);
+
         console.log("Fail to connect to database.");
       });
   }

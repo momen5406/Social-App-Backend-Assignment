@@ -1,9 +1,9 @@
 import express, { NextFunction, Request, Response } from "express";
-import { authRouter, commentRouter, postRouter, requestRouter, userRouter } from "./modules";
+import { authRouter, chatRouter, commentRouter, postRouter, requestRouter, userRouter } from "./modules";
 import { BadRequestException, NotFoundException } from "./common";
 import { connectDB } from "./DB/connection";
-import { redisConnect } from "./DB/redis.connect";
 import { s3CloudProvider } from "./common/cloud/s3/init";
+import cors from "cors";
 import { promisify } from "node:util";
 import { pipeline } from "node:stream";
 import { createHandler } from "graphql-http";
@@ -12,6 +12,8 @@ import { UserGqlQuery } from "./modules/user/graphql/user.query.gql";
 import { PostGqlQuery } from "./modules/post/graphql/post.query.gql";
 import { CommentGqlQuery } from "./modules/comment/graphql/comment.query.gql";
 import { PostGqlMutation } from "./modules/post/graphql/post.mutation.gql";
+import { RealtimeGateway } from "./common/realtime-gateway/realtime.gateway";
+import { redisConnect } from "./DB/redis.connect";
 
 const pipelinePromise = promisify(pipeline);
 
@@ -29,6 +31,7 @@ export function bootstrap() {
   connectDB();
   redisConnect();
   app.use(express.json());
+  app.use(cors({ origin: "*" }));
 
   const query = new GraphQLObjectType({
     name: "RootQuery",
@@ -62,6 +65,7 @@ export function bootstrap() {
   app.use("/comment", commentRouter);
   app.use("/request", requestRouter);
   app.use("/user", userRouter);
+  app.use("/chat", chatRouter);
 
   app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     return res.status((error.cause as number) || 500).json({
@@ -71,7 +75,10 @@ export function bootstrap() {
     });
   });
 
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log("Application is running on port", port);
   });
+
+  const realTimeGateway = new RealtimeGateway(server);
+  realTimeGateway.establishConnection();
 }

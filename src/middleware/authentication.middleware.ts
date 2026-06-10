@@ -1,10 +1,14 @@
 import type { NextFunction, Request, Response } from "express";
 import { BadRequestException } from "../common";
 import { JwtPayload, verify } from "jsonwebtoken";
+import { ACCESS_TOKEN_SECRET } from "../config";
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-  const user = { username: "hello", email: "e" } as unknown as Request["user"];
-  req.user = user;
+  const authorization = req.headers.authorization;
+  if (!authorization) throw new BadRequestException("Token is required");
+  const token = authorization?.split(" ")[1];
+  if (!token) throw new BadRequestException("Token is required");
+  req.user = verify(token, ACCESS_TOKEN_SECRET) as JwtPayload;
   next();
 };
 

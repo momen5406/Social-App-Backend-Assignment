@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { multerUploadFile } from "../../common";
 import userService from "./user.service";
 import { Types } from "mongoose";
+import { isAuthenticated } from "../../middleware";
 
 const router = Router();
 
@@ -16,5 +17,10 @@ router.post(
     return res.status(200).json({ message: "Success", data });
   }
 );
+
+router.get("/", isAuthenticated, async (req: Request, res: Response, next: NextFunction) => {
+  const { user, friends } = await userService.profile(new Types.ObjectId(req.user.sub));
+  return res.status(200).json({ message: "Success", data: { user, friends } });
+});
 
 export default router;

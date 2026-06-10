@@ -27,4 +27,11 @@ router.patch("/reset-password", async (req: Request, res: Response, next: NextFu
   return res.status(200).json({ message: "Reset Password Successfully.", success: true });
 });
 
+router.post("/login", async (req: Request, res: Response, next: NextFunction) => {
+  const data = await authService.login(req.body);
+  console.log(req.body);
+
+  return res.status(200).json({ message: "Login Successfully", success: true, data });
+});
+
 export default router;

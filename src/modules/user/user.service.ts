@@ -3,11 +3,13 @@ import { ICloudProvider } from "../../common/cloud/cloud.interface";
 import { s3CloudProvider } from "../../common/cloud/s3/init";
 import { UserRepository, userRepository } from "../../DB/models/user/user.repository";
 import { NotFoundException } from "../../common";
+import { userFriendRepository, UserFriendRepository } from "../../DB/models/userFriend/userFriend.repository";
 
 class UserService {
   constructor(
     private readonly cloudProvider: ICloudProvider,
-    private readonly userRepository: UserRepository
+    private readonly userRepository: UserRepository,
+    private readonly userFriendRepository: UserFriendRepository
   ) {}
 
   async uploadProfilePic(file: Express.Multer.File, userId: Types.ObjectId) {
@@ -22,8 +24,14 @@ class UserService {
   }
 
   async profile(userId: Types.ObjectId) {
-    return await this.userRepository.getOne({ _id: userId });
+    const user = await this.userRepository.getOne({ _id: userId });
+    const friends = await this.userFriendRepository.getAll(
+      { $or: [{ user: userId }, { friend: userId }] },
+      {},
+      { populate: [{ path: "user" }, { path: "friend" }] }
+    );
+    return { user, friends };
   }
 }
 
-export default new UserService(s3CloudProvider, userRepository);
+export default new UserService(s3CloudProvider, userRepository, userFriendRepository);
